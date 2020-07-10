@@ -2,6 +2,23 @@
   "name": "kap-camera",
   "version": "1.0.0",
   "main": "index.js",
+  "description": "Show a camera while recording.",
+  "repository": "karaggeorge/kap-camera",
+  "author": {
+    "name": "George Karagkiaouris",
+    "email": "gkaragkiaouris2@gmail.com",
+    "url": "https://gkaragkiaouris.tech"
+  },
+  "keywords": [
+    "kap-plugin",
+    "camera",
+    "face",
+    "webcam",
+    "recording"
+  ],
+  "kap": {
+    "version": ">=3.2.0"
+  },
   "license": "MIT",
   "scripts": {
     "build": "swiftc -o video-devices -target 'x86_64-apple-macosx10.12' video-devices.swift"
@@ -11,9 +28,11 @@
     "video-devices",
     "index.html"
   ],
+  "peerDependencies": {
+    "electron": "*",
+    "electron-util": "*"
+  },
   "dependencies": {
-    "electron": "^9.1.0",
-    "electron-util": "^0.14.2",
     "execa": "^4.0.3"
   }
 }
