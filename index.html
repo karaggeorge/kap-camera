@@ -1,0 +1,82 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+
+    <style>
+      body,
+      html,
+      .container {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        -webkit-app-region: drag;
+      }
+
+      video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        -webkit-app-region: drag;
+        transition: opacity 0.2s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <video id="preview" autoplay="true"></video>
+    </div>
+  </body>
+
+  <script>
+    const electron = require('electron');
+
+    electron.remote.getCurrentWindow().setIgnoreMouseEvents(true, {forward: true});
+
+    const video = document.querySelector('#preview');
+    const params = new URLSearchParams(location.search);
+
+    const videoDeviceName = params.get('videoDeviceName');
+    const hoverOpacity = params.get('hoverOpacity');
+    const borderRadius = params.get('borderRadius');
+
+    const css = `
+      video {
+        border-radius: ${borderRadius};
+      }
+
+      video:hover {
+        opacity: ${hoverOpacity};
+      }
+    `;
+
+    const style = document.createElement('style');
+    style.appendChild(document.createTextNode(css));
+    document.querySelector('head').appendChild(style);
+
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      const videoDevices = devices.filter(d => d.kind === 'videoinput');
+      const [defaultDevice] = videoDevices;
+
+      const device = (
+        videoDeviceName && videoDevices.find(d => d.label.includes(videoDeviceName))
+      ) || defaultDevice;
+
+      const {deviceId} = device || {};
+
+      navigator.mediaDevices.getUserMedia({video: {deviceId}}).then(stream => {
+        video.srcObject = stream;
+      });
+    });
+
+    video.addEventListener('mouseenter', event => {
+      if (event.metaKey) {
+        electron.remote.getCurrentWindow().setIgnoreMouseEvents(false);
+      } else {
+        electron.remote.getCurrentWindow().setIgnoreMouseEvents(true, {forward: true});
+      }
+    });
+  </script>
+</html>
