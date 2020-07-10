@@ -2,7 +2,7 @@
 
 const util = require('electron-util');
 const path = require('path');
-const {BrowserWindow, screen} = require('electron');
+const {BrowserWindow, screen, systemPreferences, ipcMain} = require('electron');
 const execa = require('execa');
 
 const binary = path.join(util.fixPathForAsarUnpack(__dirname), 'video-devices');
@@ -92,7 +92,21 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
     webPreferences: {nodeIntegration: true}
   });
 
-  state.window.loadURL(`file://${contentPath}?${params}`);
+  // state.window.openDevTools({mode: 'detach'});
+
+  state.window.loadFile(contentPath);
+
+  state.window.webContents.on('did-finish-load', () => {
+    state.window.webContents.send('data', {
+      videoDeviceName: config.get('deviceName'),
+      hoverOpacity: config.get('hoverOpacity'),
+      borderRadius: config.get('borderRadius')
+    });
+  });
+
+  return new Promise(resolve => {
+    ipcMain.on('mount', resolve);
+  })
 };
 
 const didStopRecording = ({state}) => {
@@ -108,10 +122,13 @@ The window is click-through and its hover opacity and size can be adjusted.
 To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen.
 `;
 
+const willEnable = () => systemPreferences.askForMediaAccess('camera');
+
 exports.recordServices = [{
   title: 'Show Camera',
   config,
   configDescription,
   willStartRecording,
-  didStopRecording
+  didStopRecording,
+  willEnable
 }];

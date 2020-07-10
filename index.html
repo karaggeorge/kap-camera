@@ -32,17 +32,15 @@
 
   <script>
     const electron = require('electron');
+    const {ipcRenderer} = electron;
 
     electron.remote.getCurrentWindow().setIgnoreMouseEvents(true, {forward: true});
 
     const video = document.querySelector('#preview');
-    const params = new URLSearchParams(location.search);
+    // const params = new URLSearchParams(location.search);
 
-    const videoDeviceName = params.get('videoDeviceName');
-    const hoverOpacity = params.get('hoverOpacity');
-    const borderRadius = params.get('borderRadius');
-
-    const css = `
+    ipcRenderer.on('data', (_, {videoDeviceName, hoverOpacity, borderRadius}) => {
+      const css = `
       video {
         border-radius: ${borderRadius};
       }
@@ -52,24 +50,35 @@
       }
     `;
 
-    const style = document.createElement('style');
-    style.appendChild(document.createTextNode(css));
-    document.querySelector('head').appendChild(style);
+      const style = document.createElement('style');
+      style.appendChild(document.createTextNode(css));
+      document.querySelector('head').appendChild(style);
 
-    navigator.mediaDevices.enumerateDevices().then(devices => {
-      const videoDevices = devices.filter(d => d.kind === 'videoinput');
-      const [defaultDevice] = videoDevices;
+      navigator.mediaDevices.enumerateDevices().then(devices => {
+        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const [defaultDevice] = videoDevices;
 
-      const device = (
-        videoDeviceName && videoDevices.find(d => d.label.includes(videoDeviceName))
-      ) || defaultDevice;
+        const device = (
+          videoDeviceName && videoDevices.find(d => d.label.includes(videoDeviceName))
+        ) || defaultDevice;
 
-      const {deviceId} = device || {};
+        if (!device) {
+          ipcRenderer.send('mount');
+          return;
+        }
 
-      navigator.mediaDevices.getUserMedia({video: {deviceId}}).then(stream => {
-        video.srcObject = stream;
+        const {deviceId} = device;
+
+        navigator.mediaDevices.getUserMedia({video: {deviceId}}).then(stream => {
+          video.srcObject = stream;
+          ipcRenderer.send('mount');
+        });
       });
     });
+
+    // const videoDeviceName = params.get('videoDeviceName');
+    // const hoverOpacity = params.get('hoverOpacity');
+    // const borderRadius = params.get('borderRadius');
 
     video.addEventListener('mouseenter', event => {
       if (event.metaKey) {
