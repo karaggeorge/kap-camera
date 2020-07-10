@@ -1,6 +1,6 @@
 {
   "name": "kap-camera",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "main": "index.js",
   "description": "Show a camera while recording.",
   "repository": "karaggeorge/kap-camera",
