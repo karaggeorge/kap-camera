@@ -95,7 +95,7 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
 
   state.window.loadFile(contentPath);
 
-  state.window.openDevTools({mode: 'detach'});
+  // state.window.openDevTools({mode: 'detach'});
 
   state.window.webContents.on('did-finish-load', () => {
     state.window.webContents.send('data', {
