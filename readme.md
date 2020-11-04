@@ -1,3 +1,7 @@
+# Warning
+
+This plugin is not ready to be used. There's still some issues to be worked out around camera system permissions.
+
 # kap-camera
 
 > [Kap](https://github.com/wulkano/kap) plugin - Show a camera while recording

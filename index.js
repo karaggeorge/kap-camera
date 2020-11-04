@@ -44,7 +44,7 @@ const config = {
     description: 'Width of the window.',
     type: 'number',
     minimum: 0,
-    default: 100,
+    default: 128,
     required: true
   },
   height: {
@@ -52,7 +52,7 @@ const config = {
     description: 'Height of the window.',
     type: 'number',
     minimum: 0,
-    default: 100,
+    default: 128,
     required: true
   }
 };

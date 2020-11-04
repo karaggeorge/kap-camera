@@ -17,7 +17,7 @@
     "recording"
   ],
   "kap": {
-    "version": ">=3.3.0"
+    "version": ">=4.0.0"
   },
   "license": "MIT",
   "scripts": {
@@ -29,10 +29,10 @@
     "index.html"
   ],
   "peerDependencies": {
-    "electron": "*",
-    "electron-util": "*"
+    "electron": "*"
   },
   "dependencies": {
+    "electron-util": "^0.14.2",
     "execa": "^4.0.3"
   }
 }
