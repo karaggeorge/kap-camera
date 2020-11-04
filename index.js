@@ -2,10 +2,11 @@
 
 const util = require('electron-util');
 const path = require('path');
-const {BrowserWindow, screen, systemPreferences, ipcMain} = require('electron');
+const {BrowserWindow, screen, ipcMain, dialog, shell, app} = require('electron');
 const execa = require('execa');
 
 const binary = path.join(util.fixPathForAsarUnpack(__dirname), 'video-devices');
+const permissionsBinary = path.join(util.fixPathForAsarUnpack(__dirname), 'permissions');
 const contentPath = path.join(util.fixPathForAsarUnpack(__dirname), 'index.html');
 const PADDING = 20;
 
@@ -67,11 +68,11 @@ const getBounds = (cropArea, screenBounds, {width, height}) => {
 }
 
 const willStartRecording = async ({state, config, apertureOptions: {screenId, cropArea}}) => {
-  const params = new URLSearchParams({
-    videoDeviceName: config.get('deviceName'),
-    hoverOpacity: config.get('hoverOpacity'),
-    borderRadius: config.get('borderRadius')
-  }).toString();
+  const hasPermissions = await ensureCameraPermission();
+
+  if (!hasPermissions) {
+    return;
+  }
 
   const screens = screen.getAllDisplays();
   const {bounds} = screens.find(s => s.id === screenId) || {};
@@ -92,9 +93,9 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
     webPreferences: {nodeIntegration: true}
   });
 
-  // state.window.openDevTools({mode: 'detach'});
-
   state.window.loadFile(contentPath);
+
+  state.window.openDevTools({mode: 'detach'});
 
   state.window.webContents.on('did-finish-load', () => {
     state.window.webContents.send('data', {
@@ -105,8 +106,11 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
   });
 
   return new Promise(resolve => {
-    ipcMain.on('mount', resolve);
-  })
+    ipcMain.on('kap-camera-mount', resolve);
+
+    // Resolve after 5 seconds to not block recording if for some reason there's no event
+    setTimeout(resolve, 5000);
+  });
 };
 
 const didStopRecording = ({state}) => {
@@ -122,7 +126,39 @@ The window is click-through and its hover opacity and size can be adjusted.
 To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen.
 `;
 
-const willEnable = () => systemPreferences.askForMediaAccess('camera');
+const openSystemPreferences = path => shell.openExternal(`x-apple.systempreferences:com.apple.preference.security?${path}`);
+
+const hasCameraPermission = async () => {
+  try {
+    return (await execa(permissionsBinary)).stdout === 'true';
+  } catch {
+    return false;
+  }
+}
+
+const ensureCameraPermission = async () => {
+  const hasPermission = await hasCameraPermission();
+
+  if (hasPermission) {
+    return true;
+  }
+
+  const {response} = await dialog.showMessageBox({
+    type: 'warning',
+    buttons: ['Open System Preferences', 'Cancel'],
+    defaultId: 0,
+    message: 'kap-camera cannot access the camera.',
+    detail: 'kap-camera requires camera access to be able to show the contents of the webcam. You can grant this in the System Preferences. Afterwards, launch Kap for the changes to take effect.',
+    cancelId: 1
+  });
+
+  if (response === 0) {
+    await openSystemPreferences('Privacy_Camera');
+    app.quit();
+  }
+
+  return false;
+}
 
 exports.recordServices = [{
   title: 'Show Camera',
@@ -130,5 +166,5 @@ exports.recordServices = [{
   configDescription,
   willStartRecording,
   didStopRecording,
-  willEnable
+  willEnable: ensureCameraPermission
 }];

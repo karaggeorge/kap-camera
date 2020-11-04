@@ -37,7 +37,6 @@
     electron.remote.getCurrentWindow().setIgnoreMouseEvents(true, {forward: true});
 
     const video = document.querySelector('#preview');
-    // const params = new URLSearchParams(location.search);
 
     ipcRenderer.on('data', (_, {videoDeviceName, hoverOpacity, borderRadius}) => {
       const css = `
@@ -63,7 +62,7 @@
         ) || defaultDevice;
 
         if (!device) {
-          ipcRenderer.send('mount');
+          ipcRenderer.send('kap-camera-mount');
           return;
         }
 
@@ -71,14 +70,10 @@
 
         navigator.mediaDevices.getUserMedia({video: {deviceId}}).then(stream => {
           video.srcObject = stream;
-          ipcRenderer.send('mount');
-        });
-      });
-    });
-
-    // const videoDeviceName = params.get('videoDeviceName');
-    // const hoverOpacity = params.get('hoverOpacity');
-    // const borderRadius = params.get('borderRadius');
+          ipcRenderer.send('kap-camera-mount');
+        }).catch(() => ipcRenderer.send('kap-camera-mount'));
+      }).catch(() => ipcRenderer.send('kap-camera-mount'));
+    })
 
     video.addEventListener('mouseenter', event => {
       if (event.metaKey) {
