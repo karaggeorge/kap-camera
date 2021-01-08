@@ -120,7 +120,7 @@ const didStopRecording = ({state}) => {
 };
 
 const configDescription =
-`Create a window showing the selected camera on the bottom-left corner of the recording.
+  `Create a window showing the selected camera on the bottom-left corner of the recording.
 The window is click-through and its hover opacity and size can be adjusted.
 
 To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen.
@@ -130,7 +130,8 @@ const openSystemPreferences = path => shell.openExternal(`x-apple.systempreferen
 
 const hasCameraPermission = async () => {
   try {
-    return (await execa(permissionsBinary)).stdout === 'true';
+    const permission = await execa(permissionsBinary);
+    return permission.stdout === 'true' || permission.stdout.split(/\r?\n/).indexOf('true') >= 0;
   } catch {
     return false;
   }
