@@ -27,3 +27,5 @@ This is based off of [kap-camera](https://github.com/karaggeorge/kap-camera/) by
 -   [x] remove active window frame on macOS
 -   [x] consolidate camera shape and size options
 -   [ ] show camera even when recording is not started (?)
+
+![demo](https://user-images.githubusercontent.com/30227512/193449667-19bd8411-2151-47af-8d9f-2dc5d8205450.gif)
