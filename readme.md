@@ -21,3 +21,9 @@ This plugin creates an overlay window showing the selected camera on the bottom-
 ## Misc
 
 This is based off of [kap-camera](https://github.com/karaggeorge/kap-camera/) by [@karaggeorge's](https://github.com/karaggeorge). I wanted a more Loom-like flavour to the UI of this plugin and decided to fork my own.
+
+### TODOs
+
+-   [x] remove active window frame on macOS
+-   [x] consolidate camera shape and size options
+-   [ ] show camera even when recording is not started (?)

@@ -20,45 +20,27 @@ try {
 } catch { }
 
 const config = {
-  deviceName: {
+  device: {
     title: 'Device',
-    description: 'Which device to display.',
+    description: 'Select a camera to display.',
     enum: devices,
     required: true,
     default: 'Default'
   },
-  borderRadius: {
-    title: 'Border Radius',
-    description: 'Any valid `border-radius` value, like `10px` or `50%`.',
-    type: 'string',
+  rounded: {
+    title: 'Corners',
+    description: 'Corners of your camera overlay.',
+    enum: ['Circle', 'Rounded', 'Square'],
     required: true,
-    default: '50%'
+    default: 'Circle'
   },
-  hoverOpacity: {
-    title: 'Hover Opacity',
-    description: 'Opacity of the window on when moused over.',
-    type: 'number',
-    minimum: 0,
-    maximum: 1,
-    default: 0.6,
-    required: true
+  size: {
+    title: 'Size',
+    description: 'How large should the preview be?',
+    enum: ['Small', 'Medium', 'Large'],
+    required: true,
+    default: 'Medium'
   },
-  width: {
-    title: 'Width',
-    description: 'Width of the window.',
-    type: 'number',
-    minimum: 0,
-    default: 128,
-    required: true
-  },
-  height: {
-    title: 'Height',
-    description: 'Height of the window.',
-    type: 'number',
-    minimum: 0,
-    default: 128,
-    required: true
-  }
 };
 
 const getBounds = (cropArea, screenBounds, { width, height }) => {
@@ -80,9 +62,11 @@ const willStartRecording = async ({ state, config, apertureOptions: { screenId, 
   const screens = screen.getAllDisplays();
   const { bounds } = screens.find(s => s.id === screenId) || {};
 
+  const size = config.get('size') === "Small" ? 180 : config.get('size') === "Medium" ? 300 : 500
+
   const position = getBounds(cropArea, bounds, {
-    width: config.get('width'),
-    height: config.get('height')
+    width: size,
+    height: size
   });
 
   state.window = new BrowserWindow({
@@ -90,11 +74,13 @@ const willStartRecording = async ({ state, config, apertureOptions: { screenId, 
     closable: false,
     minimizable: false,
     maximizable: false,
+    fullscreenable: false,
     alwaysOnTop: true,
     frame: false,
     transparent: true,
     visualEffectState: 'inactive',
     titleBarStyle: 'customButtonsOnHover',
+    hasShadow: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -108,9 +94,8 @@ const willStartRecording = async ({ state, config, apertureOptions: { screenId, 
 
   state.window.webContents.on('did-finish-load', () => {
     state.window.webContents.send('data', {
-      videoDeviceName: config.get('deviceName'),
-      hoverOpacity: config.get('hoverOpacity'),
-      borderRadius: config.get('borderRadius')
+      videoDeviceName: config.get('device'),
+      borderRadius: config.get('rounded') === "Circle" ? "50%" : config.get("rounded") === "Rounded" ? "16px" : "0px"
     });
   });
 
@@ -126,12 +111,7 @@ const didStopRecording = ({ state }) => {
   }
 };
 
-const configDescription =
-  `Create a window showing the selected camera on the bottom-left corner of the recording.
-The window is click-through and its hover opacity and size can be adjusted.
-
-To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen.
-`;
+const configDescription = `Create a window showing the selected camera on your recording`;
 
 const openSystemPreferences = path => shell.openExternal(`x-apple.systempreferences:com.apple.preference.security?${path}`);
 
@@ -154,8 +134,8 @@ const ensureCameraPermission = async () => {
     type: 'warning',
     buttons: ['Open System Preferences', 'Cancel'],
     defaultId: 0,
-    message: 'kap-camera cannot access the camera.',
-    detail: 'kap-camera requires camera access to be able to show the contents of the webcam. You can grant this in the System Preferences. Afterwards, launch Kap for the changes to take effect.',
+    message: 'kap-cam cannot access the camera.',
+    detail: 'kap-cam needs camera access to work correctly. You can grant this in the System Preferences. Relaunch Kap for the changes to take effect.',
     cancelId: 1
   });
 

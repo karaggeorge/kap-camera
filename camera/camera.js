@@ -5,16 +5,11 @@ const video = document.querySelector('#preview');
 
 ipcRenderer.on('data', (_, {
 	videoDeviceName,
-	hoverOpacity,
 	borderRadius
 }) => {
 	const css = `
       video {
         border-radius: ${borderRadius};
-      }
-
-      video:hover {
-        opacity: ${hoverOpacity};
       }
     `;
 
