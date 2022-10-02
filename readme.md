@@ -1,16 +1,23 @@
-# kap-camera
+# kap-cam
 
 > [Kap](https://github.com/wulkano/kap) plugin - Show a camera while recording
 
 ## Install
 
-In the `Kap` menu, go to `Preferences…`, select the `Plugins` pane, find this plugin, and toggle it.
+In the `Kap` menu, go to `Preferences…`, select the `Plugins` pane, find `cam`, and toggle it.
 
 ## Usage
 
-In the cropper or by right-clicking the tray icon, click the `…` icon, then `Plugins` and make sure `Show Camera` is enabled.
+Click the `…` icon in the cropper, or right-click the tray icon, then `Plugins`, and make sure `Show Camera` is enabled.
 
-The plugin creates a window showing the selected camera on the bottom-left corner of the recording.
-The window is click-through and its hover opacity and size can be adjusted.
+The Camera does not appear until recording is started.
 
-To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen
+---
+
+## Working
+
+This plugin creates an overlay window showing the selected camera on the bottom-left corner of the recording.
+
+## Misc
+
+This is based off of [kap-camera](https://github.com/karaggeorge/kap-camera/) by [@karaggeorge's](https://github.com/karaggeorge). I wanted a more Loom-like flavour to the UI of this plugin and decided to fork my own.
