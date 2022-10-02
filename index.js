@@ -1,20 +1,22 @@
 'use-strict';
 
-const util = require('electron-util');
 const path = require('path');
-const {BrowserWindow, screen, ipcMain, dialog, shell, app} = require('electron');
 const execa = require('execa');
+const util = require('electron-util');
+const { BrowserWindow, screen, ipcMain, dialog, shell, app } = require('electron');
 
-const binary = path.join(util.fixPathForAsarUnpack(__dirname), 'video-devices');
-const permissionsBinary = path.join(util.fixPathForAsarUnpack(__dirname), 'permissions');
-const contentPath = path.join(util.fixPathForAsarUnpack(__dirname), 'index.html');
+const binary = path.join(util.fixPathForAsarUnpack(__dirname), 'binaries/video-devices');
+const permissionsBinary = path.join(util.fixPathForAsarUnpack(__dirname), 'binaries/permissions');
+const contentPath = path.join(util.fixPathForAsarUnpack(__dirname), 'camera/camera.html');
+
+
 const PADDING = 20;
 
 const devices = ['Default'];
 
 try {
   devices.push(...execa.sync(binary).stdout.trim().split('\n'));
-} catch {}
+} catch { }
 
 const config = {
   deviceName: {
@@ -58,7 +60,7 @@ const config = {
   }
 };
 
-const getBounds = (cropArea, screenBounds, {width, height}) => {
+const getBounds = (cropArea, screenBounds, { width, height }) => {
   return {
     x: cropArea.x + screenBounds.x + cropArea.width - width - PADDING,
     y: screenBounds.height - (cropArea.y + cropArea.height) + screenBounds.y + cropArea.height - height - PADDING,
@@ -67,7 +69,7 @@ const getBounds = (cropArea, screenBounds, {width, height}) => {
   };
 }
 
-const willStartRecording = async ({state, config, apertureOptions: {screenId, cropArea}}) => {
+const willStartRecording = async ({ state, config, apertureOptions: { screenId, cropArea } }) => {
   const hasPermissions = await ensureCameraPermission();
 
   if (!hasPermissions) {
@@ -75,7 +77,7 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
   }
 
   const screens = screen.getAllDisplays();
-  const {bounds} = screens.find(s => s.id === screenId) || {};
+  const { bounds } = screens.find(s => s.id === screenId) || {};
 
   const position = getBounds(cropArea, bounds, {
     width: config.get('width'),
@@ -86,16 +88,22 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
     ...position,
     closable: false,
     minimizable: false,
+    maximizable: false,
     alwaysOnTop: true,
     frame: false,
     transparent: true,
+    visualEffectState: 'inactive',
     titleBarStyle: 'customButtonsOnHover',
-    webPreferences: {nodeIntegration: true}
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false,
+      enableRemoteModule: true
+    }
   });
 
   state.window.loadFile(contentPath);
 
-  // state.window.openDevTools({mode: 'detach'});
+  // state.window.openDevTools({ mode: 'detach' });
 
   state.window.webContents.on('did-finish-load', () => {
     state.window.webContents.send('data', {
@@ -113,14 +121,14 @@ const willStartRecording = async ({state, config, apertureOptions: {screenId, cr
   });
 };
 
-const didStopRecording = ({state}) => {
+const didStopRecording = ({ state }) => {
   if (state.window) {
     state.window.destroy();
   }
 };
 
 const configDescription =
-`Create a window showing the selected camera on the bottom-left corner of the recording.
+  `Create a window showing the selected camera on the bottom-left corner of the recording.
 The window is click-through and its hover opacity and size can be adjusted.
 
 To move the window, hold Command before you hover over it, then click and drag it anywhere on the screen.
@@ -143,7 +151,7 @@ const ensureCameraPermission = async () => {
     return true;
   }
 
-  const {response} = await dialog.showMessageBox({
+  const { response } = await dialog.showMessageBox({
     type: 'warning',
     buttons: ['Open System Preferences', 'Cancel'],
     defaultId: 0,

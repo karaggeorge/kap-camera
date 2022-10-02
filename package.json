@@ -1,20 +1,20 @@
 {
-  "name": "kap-camera",
-  "version": "1.2.1",
+  "name": "kap-cam",
+  "version": "1.0.0",
   "main": "index.js",
-  "description": "Show a camera while recording.",
-  "repository": "karaggeorge/kap-camera",
+  "description": "Display your webcam as you record.",
+  "repository": "clearlysid/kap-cam",
   "author": {
-    "name": "George Karagkiaouris",
-    "email": "gkaragkiaouris2@gmail.com",
-    "url": "https://gkaragkiaouris.tech"
+    "name": "Siddharth",
+    "email": "siddharth99c@gmail.com",
+    "url": "https://sid.me"
   },
   "keywords": [
     "kap-plugin",
     "camera",
-    "face",
     "webcam",
-    "recording"
+    "recording",
+    "loom"
   ],
   "kap": {
     "version": ">=3.3.2"
