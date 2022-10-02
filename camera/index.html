@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body,
+      html,
+      .container {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        -webkit-app-region: drag;
+      }
+
+      video {
+        background-color: black;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        -webkit-app-region: drag;
+        transition: opacity 0.2s ease-in-out;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <video id="preview" autoplay="true" muted></video>
+    </div>
+  </body>
+  <script src="./camera.js"></script>
+</html>
