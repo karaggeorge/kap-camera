@@ -21,16 +21,10 @@
   },
   "license": "MIT",
   "scripts": {
-    "build-devices": "swiftc -o video-devices -target 'x86_64-apple-macosx10.14' video-devices.swift",
-    "build-permissions": "swiftc -o permissions -target 'x86_64-apple-macosx10.14' permissions.swift",
+    "build-devices": "swiftc -o ./binaries/devices -target 'x86_64-apple-macosx10.14' ./binaries/devices.swift",
+    "build-permissions": "swiftc -o ./binaries/permissions -target 'x86_64-apple-macosx10.14' ./binaries/permissions.swift",
     "build": "yarn run build-devices && yarn run build-permissions"
   },
-  "files": [
-    "index.js",
-    "video-devices",
-    "permissions",
-    "index.html"
-  ],
   "peerDependencies": {
     "electron": "*"
   },

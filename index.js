@@ -5,17 +5,18 @@ const execa = require('execa');
 const util = require('electron-util');
 const { BrowserWindow, screen, ipcMain, dialog, shell, app } = require('electron');
 
-const binary = path.join(util.fixPathForAsarUnpack(__dirname), 'binaries/video-devices');
-const permissionsBinary = path.join(util.fixPathForAsarUnpack(__dirname), 'binaries/permissions');
-const contentPath = path.join(util.fixPathForAsarUnpack(__dirname), 'camera/camera.html');
+const fixPath = (p) => path.join(util.fixPathForAsarUnpack(__dirname), p)
 
+const contentPath = fixPath('camera/index.html')
+const devicesBinary = fixPath('binaries/devices');
+const permissionsBinary = fixPath('binaries/permissions');
 
 const PADDING = 20;
 
 const devices = ['Default'];
 
 try {
-  devices.push(...execa.sync(binary).stdout.trim().split('\n'));
+  devices.push(...execa.sync(devicesBinary).stdout.trim().split('\n'));
 } catch { }
 
 const config = {
@@ -115,9 +116,7 @@ const willStartRecording = async ({ state, config, apertureOptions: { screenId, 
 
   return new Promise(resolve => {
     ipcMain.on('kap-camera-mount', resolve);
-
-    // Resolve after 5 seconds to not block recording if for some reason there's no event
-    setTimeout(resolve, 5000);
+    setTimeout(resolve, 5000); // Resolve in 5s if no event
   });
 };
 
